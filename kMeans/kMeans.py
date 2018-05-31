@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Name: Don Cruver
+# Name: Don Cruver, Bill O'Keefe
 # Date: May 15, 2018
 # Course: CPSC51100 - Statistical Programming, Lewis University
 # Term: Summer 2018
@@ -39,7 +39,7 @@ def find_best_group(p, l):
     if len(l) == 1:
         return l[0];
         
-    midpoint = (len(l)-1) / 2;
+    midpoint = int((len(l)-1) / 2)
     d1 = distance(p, l[midpoint][0])
     d2 = distance(p, l[midpoint + 1][0])
     
@@ -83,11 +83,64 @@ def converge(output_fn=None):
     """Calls 'rebalance()' repeatedly until convergence is reached. Optionally
        accepts a function that will be pasdsed the current state of 'groups' 
        on each iteration."""
+    iteration_num = 0
     while (rebalance()):
+        iteration_num += 1
         if output_fn:
-            output_fn(groups)        
+            output_fn(iteration_num)
+
+def output(iteration_num):
+    """
+    Prints a single iteration of the required CLI output.
+    
+    params:
+        iteration_num: int, num of times rebalance executed
+    """
+    # print as shown in sample output
+    print("Iteration %d" % iteration_num)
+    clusters = groups
+    
+    [print(cluster[0], cluster[1]) for cluster in clusters]
+    print("\n")
+
+def write_results(out_file):
+    """
+    Writes all points and their associated cluster number to file.
+    
+    params:
+        out_file: str, name of output file
+    """
+    cluster_num = 0
+    
+    with open(out_file, 'w+') as file:
+        for group in groups:
+            for item in group[1]:
+                file.write("Point %s in cluster %d \n" % (item, cluster_num))
+            
+            cluster_num += 1
+            
+def main():
+    """
+    Retrieves input from user to start clustering.  Calls initialize, 
+    converge, write_results.
+    """
+    
+    input_file = input("Enter the name of the input file: ")
+    output_file = input("Enter the name of the output file: ")
+    k = int(input("Enter the number of clusters: "))
+    print("\n")
+    
+    with open(input_file) as file:
+        nums = [float(line.strip()) for line in file]
         
+    initialize(nums, k)            # creates k groups
+    converge(output)               # shuffles until convergence
+    write_results(output_file)     # creates required out file
+    
+
 if __name__ == "__main__":
-    print "CPSC-51100, Summer 2018"
-    print "NAME: Don Cruver"
-    print "PROGRAMMING ASSIGNMENT #2"
+    print("CPSC-51100, Summer 2018")
+    print("NAME: Don Cruver, Bill OKeefe")
+    print( "PROGRAMMING ASSIGNMENT #2 \n")
+    
+    main()
