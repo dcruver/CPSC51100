@@ -100,24 +100,37 @@ def output(iteration_num):
     print("Iteration %d" % iteration_num)
     clusters = groups
     
-    [print(cluster[0], cluster[1]) for cluster in clusters]
+    for cluster in clusters:
+        print("%d %s" % (cluster[0], cluster[1]))  
+    # [print("%d %s" % (cluster[0], cluster[1])) for cluster in clusters]
     print("\n")
 
-def write_results(out_file):
+def write_results(out_file, input_file):
     """
     Writes all points and their associated cluster number to file.
     
     params:
         out_file: str, name of output file
-    """
-    cluster_num = 0
+        input_file: str, name of input file
+    """    
+    # create dict to store key=number, value=cluster_num
+    # not sure if ideal, but can be done with one pass through of groups
+    # and then cluster_num can be retrieved in constant time
+    current_cluster = 0
+    cluster_dict = {}
+    for group in groups:
+        for item in group[1]:
+            cluster_dict[item] = current_cluster
+        current_cluster += 1
+    
+    # need to grab numbers as originally ordered
+    with open(input_file) as file:
+        nums = [float(line.strip()) for line in file]
     
     with open(out_file, 'w+') as file:
-        for group in groups:
-            for item in group[1]:
-                file.write("Point %s in cluster %d \n" % (item, cluster_num))
-            
-            cluster_num += 1
+        for number in nums:
+            file.write("Point %s in cluster %d \n" % (number, cluster_dict[number]))
+
             
 def main():
     """
@@ -125,9 +138,9 @@ def main():
     converge, write_results.
     """
     
-    input_file = input("Enter the name of the input file: ")
-    output_file = input("Enter the name of the output file: ")
-    k = int(input("Enter the number of clusters: "))
+    input_file = raw_input("Enter the name of the input file: ")
+    output_file = raw_input("Enter the name of the output file: ")
+    k = int(raw_input("Enter the number of clusters: "))
     print("\n")
     
     with open(input_file) as file:
@@ -135,7 +148,7 @@ def main():
         
     initialize(nums, k)            # creates k groups
     converge(output)               # shuffles until convergence
-    write_results(output_file)     # creates required out file
+    write_results(output_file, input_file)     # creates required out file
     
 
 if __name__ == "__main__":
